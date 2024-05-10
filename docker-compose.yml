@@ -1,10 +1,11 @@
-version: "3.7"
 
 services:
   portal:
-    image: jeffernz/geneweb:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
-      - bases:/usr/local/var/geneweb
+      - bases:/geneweb
     ports:
       - ${PORTAL_PORT}:2317
     entrypoint:
@@ -12,12 +13,14 @@ services:
       - start-portal
     env_file:
       - .env
-    restart: always
+    restart: no
 
   setup:
-    image: jeffernz/geneweb:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
-      - bases:/usr/local/var/geneweb
+      - bases:/geneweb
     ports:
       - ${SETUP_PORT}:2316
     entrypoint:
@@ -25,11 +28,11 @@ services:
       - start-setup
     env_file:
       - .env
-    restart: always
+    restart: no
 
 volumes:
   bases:
     driver_opts:
       type: none
-      device: $HOME/GenealogyData
+      device: ./.geneweb_data
       o: bind

@@ -1,32 +1,47 @@
-FROM ubuntu:19.04
+FROM ubuntu:latest
 
-MAINTAINER Jeffery Fernandez <jefferyfernandez@gmail.com>
+# Geneweb install directory
+ARG GENEWEB_DOWNLOAD_NAME=geneweb-linux.zip
+ARG GENEWEB_URL=https://github.com/geneweb/geneweb/releases/latest/download/${GENEWEB_DOWNLOAD_NAME}
 
-RUN \
-  apt-get update && \
-  apt-get -y install --no-install-recommends geneweb gwsetup tzdata && \
-  rm -fr /var/lib/apt/lists/*
+# Geneweb config arguments
+# ENV LANGUAGE en
+# ENV HOST_IP 172.17.0.1
 
-# Default language to be English
-ENV LANGUAGE en
 
-# Default access to gwsetup is from docker host
-ENV HOST_IP 172.17.0.1
+ENV GENEWEB_INSTALL_DIR=/opt/geneweb
+ENV GENEWEB_DIR = /geneweb
+ENV PATH = $PATH:$GENEWEB_INSTALL_DIR/gw
 
-# Copy script to local bin folder
+# Install dependencies
+RUN apt-get update && \ apt-get -y upgrade
+RUN apt-get -y install curl zip
+
+# Copy scripts to local bin folder
 COPY bin/*.sh /usr/local/bin/
 
-# Make script executable
+# Make scripts executable
 RUN chmod a+x /usr/local/bin/*.sh
 
-# Change the geneweb home directory to our database path to avoid stomping on debian package path /var/lib/geneweb
-RUN usermod -d /usr/local/var/geneweb geneweb
+# Install geneweb
+RUN curl -L $package_url -o /tmp/${GENEWEB_DOWNLOAD_NAME}
+RUN mkdir -p ${GENEWEB_INSTALL_DIR}
+RUN unzip /tmp/${GENEWEB_DOWNLOAD_NAME} -d ${GENEWEB_INSTALL_DIR}
+RUN rm /tmp/${GENEWEB_DOWNLOAD_NAME}
 
-# Ensure that the geneweb database dir exists and is owned by the geneweb user
-RUN mkdir -p /usr/local/var/geneweb && chown geneweb /usr/local/var/geneweb
+# Create geneweb directories
+RUN mkdir -p ${GENEWEB_DIR}
+
+# Create geneweb user
+RUN useradd -d ${GENEWEB_DIR} geneweb
+
+# Ensure that the geneweb user own every geneweb files
+RUN chown -R geneweb ${GENEWEB_INSTALL_DIR}
+RUN chown -R geneweb ${GENEWEB_DIR}
 
 # Create a volume on the container
-VOLUME /usr/local/var/geneweb
+VOLUME ${GENEWEB_INSTALL_DIR}
+VOLUME ${GENEWEB_DIR}
 
 # Expose the geneweb and gwsetup ports to the docker host
 EXPOSE 2317

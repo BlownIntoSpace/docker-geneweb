@@ -2,15 +2,15 @@
 
 set -e
 
-PROJECT_NAME=jeffernz-geneweb
-PROJECT_RELEASE=1.3
+PROJECT_NAME=momoz-geneweb
+PROJECT_RELEASE=0.1
 
 WEB_PORT=2317
 SETUP_PORT=2316
 DATA_HOME=${HOME}/GenealogyData
 LANGUAGE="en"
 HOST_IP="172.17.0.1"
-TIME_ZONE="Australia/Melbourne"
+TIME_ZONE="France/Paris"
 
 function containerName()
 {
@@ -59,12 +59,12 @@ RUNNING
 
 function checkoutRepo()
 {
-    git clone https://github.com/jeffery/docker-geneweb.git
+    git clone git@github.com:MauriceIsrael/docker-geneweb.git
 }
 
 function buildContainer()
 {
-    docker build -t jeffernz/geneweb:latest -t jeffernz/geneweb:${PROJECT_RELEASE} .
+    docker build -t MauriceIsrael/docker-geneweb:latest -t MauriceIsrael/docker-geneweb:${PROJECT_RELEASE} .
 }
 
 function runContainer()
@@ -81,12 +81,12 @@ function runContainer()
         --restart unless-stopped \
         -p ${SETUP_PORT}:2316 \
         -p ${WEB_PORT}:2317 \
-        -v ${DATA_HOME}:/usr/local/var/geneweb/ \
+        -v ${DATA_HOME}:/opt/geneweb/ \
         --env HOST_IP=${HOST_IP} \
         --env LANGUAGE=${LANGUAGE} \
         --env TZ=${TIME_ZONE} \
         --name $(containerName) \
-        jeffernz/geneweb:latest
+        MauriceIsrael/docker-geneweb:2.0
 }
 
 function stopContainer()

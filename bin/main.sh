@@ -5,40 +5,40 @@ set -e
 function startPortal()
 {
     # Start GeneWeb
-    gwd -lang ${LANGUAGE} -bd ${HOME} -hd /usr/share/geneweb -dd /usr/share/doc/geneweb -p 2317 -log ${HOME}/geneweb.log
+    #/opt/geneweb/gwd.sh -lang ${LANGUAGE} -p 2317
+    gwd -lang ${LANGUAGE} -p 2317 
 }
 
 function ensureBackupPathExists()
 {
-    if [[ ! -d backup ]]; then
-        mkdir -p backup
-    fi
+    mkdir -p ${GENEWEB_DIR}/backup
 }
 
 function ensureImportPathExists()
 {
-    if [[ ! -d import ]]; then
-        mkdir -p import
-    fi
+    mkdir -p ${GENEWEB_DIR}
 }
 
 function startSetup()
 {
-    pushd ${HOME} 1> /dev/null
+    pushd ${GENEWEB_INSTALL_DIR} 1> /dev/null
 
         if [[ -n "${HOST_IP}" ]]; then
-           echo "${HOST_IP}" > ${HOME}/gwsetup_only.txt
+           echo "${HOST_IP}" > ${GENEWEB_INSTALL_DIR}/gw/only.txt
         fi
 
         ensureBackupPathExists
         ensureImportPathExists
 
-        DEFAULT_CONFIG="${HOME}/default.gwf"
-        if [[ ! -f ${DEFAULT_CONFIG} ]]; then
-            cp /var/lib/geneweb/default.gwf ${DEFAULT_CONFIG}
-        fi
+        #DEFAULT_CONFIG="${HOME}/default.gwf"
+        #if [[ ! -f ${DEFAULT_CONFIG} ]]; then
+        #    cp /opt/geneweb/default.gwf ${DEFAULT_CONFIG}
+        #fi
 
-        gwsetup -p 2316 -gd /usr/share/geneweb -lang ${LANGUAGE} -bindir /usr/bin -only ${HOME}/gwsetup_only.txt -log /dev/null 2>&1 | tee -a ${HOME}/gwsetup.log
+        #-only opt/geneweb/gw/only.txt
+
+        # /opt/geneweb/gwsetup.sh -p 2316 -lang ${LANGUAGE} -bindir /opt/geneweb/gw/  | tee -a ${HOME}/gwsetup.log
+        gwsetup -p 2316 -lang ${LANGUAGE} -bindir ${GENEWEB_INSTALL_DIR}/gw/  | tee -a ${GENEWEB_DIR}/gwsetup.log
 
     popd 1> /dev/null
 }
